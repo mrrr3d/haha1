@@ -24,9 +24,13 @@ import com.amap.api.location.AMapLocationClient;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import android.Manifest;
 
@@ -181,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                             else {
                                 msg += "null!!";
                             }
-                            sendMsg(key + msg);
+                            sendMsgUdp(key + msg);
                             displayOnScreen(msg);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -243,6 +247,14 @@ public class MainActivity extends AppCompatActivity {
         pw.flush();
         socket.shutdownOutput();
         socket.close();
+    }
+
+    public void sendMsgUdp (String msg) throws IOException {
+        DatagramSocket socket = new DatagramSocket();
+        InetAddress serverAddress = InetAddress.getByName("xx.xx.xx.xx");
+        byte[] data = msg.getBytes();
+        DatagramPacket packet = new DatagramPacket(data, data.length, serverAddress, 20000);
+        socket.send(packet);
     }
 
     @SuppressLint("SetTextI18n")

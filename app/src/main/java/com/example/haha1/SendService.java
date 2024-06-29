@@ -17,6 +17,9 @@ import androidx.annotation.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -91,7 +94,7 @@ public class SendService extends Service {
                             else {
                                 msg += "null";
                             }
-                            sendMsg(key + msg);
+                            sendMsgUdp(key + msg);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -112,5 +115,12 @@ public class SendService extends Service {
         pw.flush();
         socket.shutdownOutput();
         socket.close();
+    }
+    public void sendMsgUdp (String msg) throws IOException {
+        DatagramSocket socket = new DatagramSocket();
+        InetAddress serverAddress = InetAddress.getByName("xx.xx.xx.xx");
+        byte[] data = msg.getBytes();
+        DatagramPacket packet = new DatagramPacket(data, data.length, serverAddress, 20000);
+        socket.send(packet);
     }
 }
