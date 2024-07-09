@@ -89,7 +89,8 @@ public class SendService extends Service {
                             if (!AmapLocate.isNull()) {
                                 msg += simpleDateFormat.format(AmapLocate.lastest_timestamp) + ",";
                                 msg += AmapLocate.lastest_longtitude + ",";
-                                msg += AmapLocate.lastest_latitude;
+                                msg += AmapLocate.lastest_latitude + ",";
+                                msg += AmapLocate.lastest_speed;
                             }
                             else {
                                 msg += "null";

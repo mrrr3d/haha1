@@ -15,6 +15,7 @@ public class AmapLocate {
     public static String lastest_latitude = null;
     public static String lastest_longtitude = null;
     public static long lastest_timestamp = 0;
+    public static String lastest_speed = null;
     public static AMapLocationClient mLocationClient = null;
     public static AMapLocationClientOption mLocationOption = null;
     public static AMapLocationListener mLocationListener = new AMapLocationListener() {
@@ -25,6 +26,7 @@ public class AmapLocate {
                     lastest_timestamp = amapLocation.getTime();
                     lastest_latitude = Double.toString(amapLocation.getLatitude());
                     lastest_longtitude = Double.toString(amapLocation.getLongitude());
+                    lastest_speed = Float.toString(amapLocation.getSpeed());
                 }else {
                     //定位失败时，可通过ErrCode（错误码）信息来确定失败的原因，errInfo是错误信息，详见错误码表。
                     Log.e("AmapError","location Error, ErrCode:"
@@ -52,7 +54,10 @@ public class AmapLocate {
         mLocationClient.startLocation();
     }
     public static boolean isNull () {
-        if (AmapLocate.lastest_timestamp != 0 && AmapLocate.lastest_latitude != null && AmapLocate.lastest_longtitude != null) {
+        if (AmapLocate.lastest_timestamp != 0 &&
+                AmapLocate.lastest_latitude != null &&
+                AmapLocate.lastest_longtitude != null &&
+                AmapLocate.lastest_speed != null) {
             return false;
         } else {
             return true;

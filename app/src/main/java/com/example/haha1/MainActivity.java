@@ -180,7 +180,8 @@ public class MainActivity extends AppCompatActivity {
                             if (AmapLocate.mLocationClient != null) {
                                 msg += simpleDateFormat.format(AmapLocate.lastest_timestamp) + ",";
                                 msg += AmapLocate.lastest_longtitude + ",";
-                                msg += AmapLocate.lastest_latitude;
+                                msg += AmapLocate.lastest_latitude + ",";
+                                msg += AmapLocate.lastest_speed;
                             }
                             else {
                                 msg += "null!!";
@@ -206,7 +207,8 @@ public class MainActivity extends AppCompatActivity {
                     curr_location = "isStarted: " + AmapLocate.mLocationClient.isStarted() +
                             "\ntime: " + dispSimpleDateFormat.format(AmapLocate.lastest_timestamp) +
                             "\nlongti: " + AmapLocate.lastest_longtitude +
-                            "\nlati: " + AmapLocate.lastest_latitude + "\n";
+                            "\nlati: " + AmapLocate.lastest_latitude +
+                            "\nspeed: " + AmapLocate.lastest_speed + "\n";
                 }
                 displayOnScreen(curr_location);
             }
