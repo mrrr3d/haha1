@@ -42,15 +42,103 @@
         android:text="stop_service"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tv1"
+        app:layout_constraintBottom_toTopOf="@id/btn_get_configs"
         app:layout_constraintTop_toBottomOf="@id/btn_start_service"
         tools:ignore="MissingConstraints" />
+    <Button
+        android:id="@+id/btn_get_configs"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="get_configs"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/ip_port"
+        app:layout_constraintTop_toBottomOf="@id/btn_stop_service"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:id="@+id/ip_port"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/interval"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_get_configs">
+
+        <EditText
+            android:id="@+id/et_ip"
+            android:background="@drawable/edittext_background"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:hint="ip"
+            android:gravity="center"
+            android:inputType="number"
+            android:digits="0123456789."
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+        <EditText
+            android:id="@+id/et_port"
+            android:background="@drawable/edittext_background"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:hint="port"
+            android:inputType="number"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/btn_ip_port"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="OK"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/interval"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tv1"
+        android:layout_marginTop="1dp"
+        app:layout_constraintTop_toBottomOf="@+id/ip_port">
+        <EditText
+            android:id="@+id/et_interval"
+            android:background="@drawable/edittext_background"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:hint="interval (s)"
+            android:inputType="number"
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/btn_interval"
+            android:layout_width="0dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:text="OK"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tv1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@id/btn_stop_service"
+        app:layout_constraintTop_toBottomOf="@id/interval"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

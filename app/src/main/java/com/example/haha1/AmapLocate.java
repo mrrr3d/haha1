@@ -37,7 +37,7 @@ public class AmapLocate {
 
         }
     };
-    public static void getAmapLocation(Context context) throws Exception {
+    public static void getAmapLocation(Context context, int interval) throws Exception {
         if (mLocationClient == null) {
             mLocationClient = new AMapLocationClient(context);
         }
@@ -47,7 +47,7 @@ public class AmapLocate {
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
         mLocationOption.setLocationCacheEnable(false);
         mLocationOption.setNeedAddress(false);
-        mLocationOption.setInterval(1000 * 60);
+        mLocationOption.setInterval(1000L * interval);
 
         mLocationClient.setLocationOption(mLocationOption);
         mLocationClient.setLocationListener(mLocationListener);

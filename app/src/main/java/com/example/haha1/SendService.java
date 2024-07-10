@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Build;
@@ -40,7 +41,7 @@ public class SendService extends Service {
         Notification notification = OpenNotificationsUtil.createNotification(this, "服务常驻通知", "定位服务正在运行中...", 0);
         startForeground(OpenNotificationsUtil.OPEN_SERVICE_NOTIFICATION_ID, notification);//显示常驻通知
         try {
-            AmapLocate.getAmapLocation(getApplicationContext());
+            AmapLocate.getAmapLocation(getApplicationContext(), MainActivity.send_interval);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -95,33 +96,17 @@ public class SendService extends Service {
                             else {
                                 msg += "null";
                             }
-                            sendMsgUdp(key + msg);
+                            SendUtil.sendMsgUdp(key + msg,
+                                    MainActivity.server_ip,
+                                    MainActivity.server_port);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 }.start();
-                handler.postDelayed(this, 1000 * 60);
+                handler.postDelayed(this, 1000L * MainActivity.send_interval);
             }
         };
         handler.postDelayed(runnable, 1000);
-    }
-    public void sendMsg (String msg) throws IOException {
-        Socket socket = new Socket();
-        SocketAddress socAddress = new InetSocketAddress("xx.xx.xx.xx", 20000);
-        socket.connect(socAddress, 5000);
-        OutputStream os = socket.getOutputStream();
-        PrintWriter pw = new PrintWriter(os);
-        pw.write(msg);
-        pw.flush();
-        socket.shutdownOutput();
-        socket.close();
-    }
-    public void sendMsgUdp (String msg) throws IOException {
-        DatagramSocket socket = new DatagramSocket();
-        InetAddress serverAddress = InetAddress.getByName("xx.xx.xx.xx");
-        byte[] data = msg.getBytes();
-        DatagramPacket packet = new DatagramPacket(data, data.length, serverAddress, 20000);
-        socket.send(packet);
     }
 }

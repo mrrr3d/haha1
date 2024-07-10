@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocationClient;
@@ -32,7 +34,12 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.Manifest;
+import android.widget.Toast;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -43,6 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
     public TextView tv1;
     public Button btn_get_location, btn_snd, btn_start_service, btn_stop_service;
+    public Button btn_ip_port, btn_interval, btn_get_configs;
+    public EditText et_ip, et_port, et_interval;
+
+    public static String server_ip;
+    public static int server_port, send_interval;
 
     @AfterPermissionGranted(111)
     private void dealBasicPermissions () {
@@ -165,6 +177,20 @@ public class MainActivity extends AppCompatActivity {
         btn_get_location = findViewById(R.id.btn_get_location);
         btn_start_service = findViewById(R.id.btn_start_service);
         btn_stop_service = findViewById(R.id.btn_stop_service);
+        btn_ip_port = findViewById(R.id.btn_ip_port);
+        btn_interval = findViewById(R.id.btn_interval);
+        btn_get_configs = findViewById(R.id.btn_get_configs);
+
+        et_ip = findViewById(R.id.et_ip);
+        et_port = findViewById(R.id.et_port);
+        et_interval = findViewById(R.id.et_interval);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("configs", MODE_PRIVATE);
+        SharedPreferences.Editor sharedPreferences_editor = sharedPreferences.edit();
+
+        server_port = sharedPreferences.getInt("port", 0);
+        server_ip = sharedPreferences.getString("ip", "");
+        send_interval = sharedPreferences.getInt("interval", 60);
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat dispSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
 
@@ -186,7 +212,9 @@ public class MainActivity extends AppCompatActivity {
                             else {
                                 msg += "null!!";
                             }
-                            sendMsgUdp(key + msg);
+                            SendUtil.sendMsgUdp(key + msg,
+                                    server_ip,
+                                    server_port);
                             displayOnScreen(msg);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -230,6 +258,73 @@ public class MainActivity extends AppCompatActivity {
                 displayOnScreen("service is stopped!");
             }
         });
+        btn_get_configs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Map<String, ?> map_all = sharedPreferences.getAll();
+                StringBuilder msg = new StringBuilder("Current configs: \n");
+                for (String key : map_all.keySet()) {
+                    msg.append(key).append(" ").append(map_all.get(key)).append("\n");
+                }
+                displayOnScreen(String.valueOf(msg));
+            }
+        });
+        btn_ip_port.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String ip_str = et_ip.getText().toString();
+                String port_str = et_port.getText().toString();
+                int port_int;
+
+                String IPV4_REGEX =
+                        "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}" +
+                                "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+                Pattern IPV4_PATTERN = Pattern.compile(IPV4_REGEX);
+
+                Matcher matcher = IPV4_PATTERN.matcher(ip_str);
+                if (!matcher.matches()) {
+                    Toast.makeText(getApplicationContext(), "Not an ipv4 address!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                try {
+                    port_int = Integer.parseInt(port_str);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getApplicationContext(), "Not a port!", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                    return;
+                }
+
+                if (port_int <= 0 || port_int > 0xffff) {
+                    Toast.makeText(getApplicationContext(), "Not a port!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                sharedPreferences_editor.putString("ip", ip_str);
+                sharedPreferences_editor.putInt("port", port_int);
+                sharedPreferences_editor.apply();
+                server_ip = ip_str;
+                server_port = port_int;
+
+                String msg;
+                msg = "Set new server ip: [ " + ip_str + ": " + port_str + " ]";
+                displayOnScreen(msg);
+            }
+        });
+
+        btn_interval.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String interval_str = et_interval.getText().toString();
+                int interval_int = Integer.parseInt(interval_str);
+
+                sharedPreferences_editor.putInt("interval", interval_int);
+                sharedPreferences_editor.apply();
+                send_interval = interval_int;
+
+                String msg = "Set new interval (s): " + interval_str;
+                displayOnScreen(msg);
+            }
+        });
+
         tv1.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -238,25 +333,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-    public void sendMsg (String msg) throws IOException {
-        Socket socket = new Socket();
-        SocketAddress socAddress = new InetSocketAddress("xx.xx.xx.xx", 20000);
-        socket.connect(socAddress, 5000);
-        OutputStream os = socket.getOutputStream();
-        PrintWriter pw = new PrintWriter(os);
-        pw.write(msg);
-        pw.flush();
-        socket.shutdownOutput();
-        socket.close();
-    }
-
-    public void sendMsgUdp (String msg) throws IOException {
-        DatagramSocket socket = new DatagramSocket();
-        InetAddress serverAddress = InetAddress.getByName("xx.xx.xx.xx");
-        byte[] data = msg.getBytes();
-        DatagramPacket packet = new DatagramPacket(data, data.length, serverAddress, 20000);
-        socket.send(packet);
     }
 
     @SuppressLint("SetTextI18n")
